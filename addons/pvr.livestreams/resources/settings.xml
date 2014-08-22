@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<settings>
+  <!-- Source -->
+  <category label="30010">
+    <setting id="sep1" label="30010" type="lsep"/> 
+    <setting id="xmlPathType" type="enum" label="30000" lvalues="30001|30002" default="1" />
+    <setting id="xmlPath" type="file" label="30011" default="" visible="eq(-1,0)"/>
+    <setting id="xmlUrl" type="text" label="30012" default="" visible="eq(-2,1)"/>
+    <setting id="xmlCache" type="bool" label="30025" default="true" visible="eq(-3,1)"/>
+    <setting id="startNum" type="number" label="30013" default="1" />
+  </category>
+
+  <!-- EPG -->
+  <category label="30020">
+    <setting id="sep2" label="30020" type="lsep"/>
+    <setting id="epgPathType" type="enum" label="30000" lvalues="30001|30002" default="1" />
+    <setting id="epgPath" type="file" label="30021" default="" visible="eq(-1,0)"/>
+    <setting id="epgUrl" type="text" label="30022" default="" visible="eq(-2,1)"/>
+    <setting id="epgCache" type="bool" label="30026" default="true" visible="eq(-3,1)"/>
+    <setting id="epgTimeShift" type="slider" label="30024" default="0" range="-12,.5,12" option="float"/>
+    <setting id="epgTSOverride" type="bool" label="30023" default="false"/>
+  </category>
+</settings>

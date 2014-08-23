@@ -107,7 +107,7 @@ protected:
   virtual PVRLiveStreamsEpgChannel *FindEpg(const std::string &strId);
   virtual PVRLiveStreamsEpgChannel *FindEpgForChannel(PVRLiveStreamsChannel &channel);
   virtual int ParseDateTime(CStdString strDate, bool iDateFormat = true);
-  virtual bool GzipInflate( const std::string &compressedBytes, std::string &uncompressedBytes);
+  virtual bool GzipInflate(const std::string &compressedBytes, std::string &uncompressedBytes);
   virtual int GetCachedFileContents(const std::string &strCachedName, const std::string &strFilePath, std::string &strContent, const bool bUseCache = false);
 
 protected:

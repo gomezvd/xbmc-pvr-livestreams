@@ -60,56 +60,56 @@ namespace PLATFORM
 
   enum SerialDataBits
   {
-    SERIAL_DATA_BITS_FIVE  = 5,
-    SERIAL_DATA_BITS_SIX   = 6,
+    SERIAL_DATA_BITS_FIVE = 5,
+    SERIAL_DATA_BITS_SIX = 6,
     SERIAL_DATA_BITS_SEVEN = 7,
     SERIAL_DATA_BITS_EIGHT = 8
   };
 
-  class CSerialSocket : public CCommonSocket<serial_socket_t>
+  class CSerialSocket : public CCommonSocket < serial_socket_t >
   {
-    public:
-      CSerialSocket(const CStdString &strName, uint32_t iBaudrate, SerialDataBits iDatabits = SERIAL_DATA_BITS_EIGHT, SerialStopBits iStopbits = SERIAL_STOP_BITS_ONE, SerialParity iParity = SERIAL_PARITY_NONE) :
-          CCommonSocket<serial_socket_t>(INVALID_SERIAL_SOCKET_VALUE, strName),
-          m_bIsOpen(false),
-          m_iBaudrate(iBaudrate),
-          m_iDatabits(iDatabits),
-          m_iStopbits(iStopbits),
-          m_iParity(iParity) {}
+  public:
+    CSerialSocket(const CStdString &strName, uint32_t iBaudrate, SerialDataBits iDatabits = SERIAL_DATA_BITS_EIGHT, SerialStopBits iStopbits = SERIAL_STOP_BITS_ONE, SerialParity iParity = SERIAL_PARITY_NONE) :
+      CCommonSocket<serial_socket_t>(INVALID_SERIAL_SOCKET_VALUE, strName),
+      m_bIsOpen(false),
+      m_iBaudrate(iBaudrate),
+      m_iDatabits(iDatabits),
+      m_iStopbits(iStopbits),
+      m_iParity(iParity) {}
 
-      virtual ~CSerialSocket(void) { Close(); }
+    virtual ~CSerialSocket(void) { Close(); }
 
-      virtual bool Open(uint64_t iTimeoutMs = 0);
-      virtual void Close(void);
-      virtual void Shutdown(void);
-      virtual ssize_t Write(void* data, size_t len);
-      virtual ssize_t Read(void* data, size_t len, uint64_t iTimeoutMs = 0);
+    virtual bool Open(uint64_t iTimeoutMs = 0);
+    virtual void Close(void);
+    virtual void Shutdown(void);
+    virtual ssize_t Write(void* data, size_t len);
+    virtual ssize_t Read(void* data, size_t len, uint64_t iTimeoutMs = 0);
 
-      virtual bool IsOpen(void)
-      {
-        return m_socket != INVALID_SERIAL_SOCKET_VALUE &&
-            m_bIsOpen;
-      }
+    virtual bool IsOpen(void)
+    {
+      return m_socket != INVALID_SERIAL_SOCKET_VALUE &&
+        m_bIsOpen;
+    }
 
-      virtual bool SetBaudRate(uint32_t baudrate);
+    virtual bool SetBaudRate(uint32_t baudrate);
 
-    protected:
-  #ifndef __WINDOWS__
-      struct termios  m_options;
-  #endif
+  protected:
+#ifndef __WINDOWS__
+    struct termios  m_options;
+#endif
 
-      bool            m_bIsOpen;
-      uint32_t        m_iBaudrate;
-      SerialDataBits  m_iDatabits;
-      SerialStopBits  m_iStopbits;
-      SerialParity    m_iParity;
+    bool            m_bIsOpen;
+    uint32_t        m_iBaudrate;
+    SerialDataBits  m_iDatabits;
+    SerialStopBits  m_iStopbits;
+    SerialParity    m_iParity;
   };
 
-  class CSerialPort : public CProtectedSocket<CSerialSocket>
+  class CSerialPort : public CProtectedSocket < CSerialSocket >
   {
   public:
     CSerialPort(const CStdString &strName, uint32_t iBaudrate, SerialDataBits iDatabits = SERIAL_DATA_BITS_EIGHT, SerialStopBits iStopbits = SERIAL_STOP_BITS_ONE, SerialParity iParity = SERIAL_PARITY_NONE) :
-      CProtectedSocket<CSerialSocket> (new CSerialSocket(strName, iBaudrate, iDatabits, iStopbits, iParity)) {}
+      CProtectedSocket<CSerialSocket>(new CSerialSocket(strName, iBaudrate, iDatabits, iStopbits, iParity)) {}
     virtual ~CSerialPort(void) {}
   };
 };

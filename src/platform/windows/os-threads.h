@@ -33,20 +33,20 @@
 
 namespace PLATFORM
 {
-  #define thread_t                                 HANDLE
-  #define ThreadsWait(thread, retVal)              (::WaitForSingleObject(thread, INFINITE) < 0)
-  #define ThreadsCreate(thread, func, arg)         ((thread = ::CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)func, arg, 0, NULL)) == NULL ? false : true)
+#define thread_t                                 HANDLE
+#define ThreadsWait(thread, retVal)              (::WaitForSingleObject(thread, INFINITE) < 0)
+#define ThreadsCreate(thread, func, arg)         ((thread = ::CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)func, arg, 0, NULL)) == NULL ? false : true)
 
   typedef CRITICAL_SECTION* mutex_t;
-  #define MutexCreate(mutex)                       ::InitializeCriticalSection(mutex = new CRITICAL_SECTION)
-  #define MutexDelete(mutex)                       ::DeleteCriticalSection(mutex); delete mutex
-  #define MutexLock(mutex)                         ::EnterCriticalSection(mutex)
-  #define MutexTryLock(mutex)                      (::TryEnterCriticalSection(mutex) != 0)
-  #define MutexUnlock(mutex)                       ::LeaveCriticalSection(mutex)
+#define MutexCreate(mutex)                       ::InitializeCriticalSection(mutex = new CRITICAL_SECTION)
+#define MutexDelete(mutex)                       ::DeleteCriticalSection(mutex); delete mutex
+#define MutexLock(mutex)                         ::EnterCriticalSection(mutex)
+#define MutexTryLock(mutex)                      (::TryEnterCriticalSection(mutex) != 0)
+#define MutexUnlock(mutex)                       ::LeaveCriticalSection(mutex)
 
   // windows vista+ conditions
-  typedef VOID (WINAPI *ConditionArg)     (CONDITION_VARIABLE*);
-  typedef BOOL (WINAPI *ConditionMutexArg)(CONDITION_VARIABLE*, CRITICAL_SECTION*, DWORD);
+  typedef VOID(WINAPI *ConditionArg)     (CONDITION_VARIABLE*);
+  typedef BOOL(WINAPI *ConditionMutexArg)(CONDITION_VARIABLE*, CRITICAL_SECTION*, DWORD);
 
   class CConditionImpl
   {

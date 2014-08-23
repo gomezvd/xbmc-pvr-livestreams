@@ -51,7 +51,7 @@ void FormatWindowsError(int iErrorCode, CStdString &strMessage)
 bool SetTimeouts(serial_socket_t socket, int* iError, bool bBlocking)
 {
   if (socket == INVALID_HANDLE_VALUE)
-	  return false;
+    return false;
 
   COMMTIMEOUTS cto;
   if (!GetCommTimeouts(socket, &cto))
@@ -62,15 +62,15 @@ bool SetTimeouts(serial_socket_t socket, int* iError, bool bBlocking)
 
   if (bBlocking)
   {
-    cto.ReadIntervalTimeout         = 0;
-    cto.ReadTotalTimeoutConstant    = 0;
-    cto.ReadTotalTimeoutMultiplier  = 0;
+    cto.ReadIntervalTimeout = 0;
+    cto.ReadTotalTimeoutConstant = 0;
+    cto.ReadTotalTimeoutMultiplier = 0;
   }
   else
   {
-    cto.ReadIntervalTimeout         = MAXDWORD;
-    cto.ReadTotalTimeoutConstant    = 0;
-    cto.ReadTotalTimeoutMultiplier  = 0;
+    cto.ReadIntervalTimeout = MAXDWORD;
+    cto.ReadTotalTimeoutConstant = 0;
+    cto.ReadTotalTimeoutMultiplier = 0;
   }
 
   if (!SetCommTimeouts(socket, &cto))
@@ -122,12 +122,12 @@ bool CSerialSocket::Open(uint64_t iTimeoutMs /* = 0 */)
     return false;
   }
 
-  COMMCONFIG commConfig = {0};
+  COMMCONFIG commConfig = { 0 };
   DWORD dwSize = sizeof(commConfig);
   commConfig.dwSize = dwSize;
-  if (GetDefaultCommConfig(strComPath.c_str(), &commConfig,&dwSize))
+  if (GetDefaultCommConfig(strComPath.c_str(), &commConfig, &dwSize))
   {
-    if (!SetCommConfig(m_socket, &commConfig,dwSize))
+    if (!SetCommConfig(m_socket, &commConfig, dwSize))
     {
       m_strError = "unable to set default config";
       FormatWindowsError(GetLastError(), m_strError);
@@ -174,16 +174,16 @@ bool CSerialSocket::SetBaudRate(uint32_t baudrate)
     m_iBaudrate = rate;
 
   DCB dcb;
-  memset(&dcb,0,sizeof(dcb));
+  memset(&dcb, 0, sizeof(dcb));
   dcb.DCBlength = sizeof(dcb);
-  dcb.BaudRate      = IntToBaudrate(m_iBaudrate);
-  dcb.fBinary       = true;
-  dcb.fDtrControl   = DTR_CONTROL_DISABLE;
-  dcb.fRtsControl   = RTS_CONTROL_DISABLE;
-  dcb.fOutxCtsFlow  = false;
-  dcb.fOutxDsrFlow  = false;
-  dcb.fOutX         = false;
-	dcb.fInX          = false;
+  dcb.BaudRate = IntToBaudrate(m_iBaudrate);
+  dcb.fBinary = true;
+  dcb.fDtrControl = DTR_CONTROL_DISABLE;
+  dcb.fRtsControl = RTS_CONTROL_DISABLE;
+  dcb.fOutxCtsFlow = false;
+  dcb.fOutxDsrFlow = false;
+  dcb.fOutX = false;
+  dcb.fInX = false;
   dcb.fAbortOnError = true;
 
   if (m_iParity == SERIAL_PARITY_NONE)
@@ -200,7 +200,7 @@ bool CSerialSocket::SetBaudRate(uint32_t baudrate)
 
   dcb.ByteSize = (BYTE)m_iDatabits;
 
-  if(!SetCommState(m_socket,&dcb))
+  if (!SetCommState(m_socket, &dcb))
   {
     m_strError = "SetCommState failed";
     FormatWindowsError(GetLastError(), m_strError);

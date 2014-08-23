@@ -44,7 +44,7 @@ struct bracket_pair {
 
 struct branch {
   int bracket_index;    /* index for 'struct bracket_pair brackets' */
-                        /* array defined below                      */
+  /* array defined below                      */
   const char *schlong;  /* points to the '|' character in the regex */
 };
 
@@ -107,60 +107,61 @@ static int hextoi(const unsigned char *s) {
 }
 
 static int match_op(const unsigned char *re, const unsigned char *s,
-                    struct regex_info *info) {
+struct regex_info *info) {
   int result = 0;
   switch (*re) {
-    case '\\':
-      /* Metacharacters */
-      switch (re[1]) {
-        case 'S':
-          FAIL_IF(isspace(*s), SLRE_NO_MATCH);
-          result++;
-          break;
-
-        case 's':
-          FAIL_IF(!isspace(*s), SLRE_NO_MATCH);
-          result++;
-          break;
-
-        case 'd':
-          FAIL_IF(!isdigit(*s), SLRE_NO_MATCH);
-          result++;
-          break;
-
-        case 'x':
-          /* Match byte, \xHH where HH is hexadecimal byte representaion */
-          FAIL_IF(hextoi(re + 2) != *s, SLRE_NO_MATCH);
-          result++;
-          break;
-
-        default:
-          /* Valid metacharacter check is done in bar() */
-          FAIL_IF(re[1] != s[0], SLRE_NO_MATCH);
-          result++;
-          break;
-      }
-      break;
-
-	case '|': return SLRE_INTERNAL_ERROR; // FAIL_IF(1, SLRE_INTERNAL_ERROR); break;
-	case '$': return SLRE_NO_MATCH; // FAIL_IF(1, SLRE_NO_MATCH); break;
-    case '.': result++; break;
-
-    default:
-      if (info->flags & SLRE_IGNORE_CASE) {
-        FAIL_IF(tolower(*re) != tolower(*s), SLRE_NO_MATCH);
-      } else {
-        FAIL_IF(*re != *s, SLRE_NO_MATCH);
-      }
+  case '\\':
+    /* Metacharacters */
+    switch (re[1]) {
+    case 'S':
+      FAIL_IF(isspace(*s), SLRE_NO_MATCH);
       result++;
       break;
+
+    case 's':
+      FAIL_IF(!isspace(*s), SLRE_NO_MATCH);
+      result++;
+      break;
+
+    case 'd':
+      FAIL_IF(!isdigit(*s), SLRE_NO_MATCH);
+      result++;
+      break;
+
+    case 'x':
+      /* Match byte, \xHH where HH is hexadecimal byte representaion */
+      FAIL_IF(hextoi(re + 2) != *s, SLRE_NO_MATCH);
+      result++;
+      break;
+
+    default:
+      /* Valid metacharacter check is done in bar() */
+      FAIL_IF(re[1] != s[0], SLRE_NO_MATCH);
+      result++;
+      break;
+    }
+    break;
+
+  case '|': return SLRE_INTERNAL_ERROR; // FAIL_IF(1, SLRE_INTERNAL_ERROR); break;
+  case '$': return SLRE_NO_MATCH; // FAIL_IF(1, SLRE_NO_MATCH); break;
+  case '.': result++; break;
+
+  default:
+    if (info->flags & SLRE_IGNORE_CASE) {
+      FAIL_IF(tolower(*re) != tolower(*s), SLRE_NO_MATCH);
+    }
+    else {
+      FAIL_IF(*re != *s, SLRE_NO_MATCH);
+    }
+    result++;
+    break;
   }
 
   return result;
 }
 
 static int match_set(const char *re, int re_len, const char *s,
-                     struct regex_info *info) {
+struct regex_info *info) {
   int len = 0, result = -1, invert = re[0] == '^';
 
   if (invert) re++, re_len--;
@@ -168,13 +169,14 @@ static int match_set(const char *re, int re_len, const char *s,
   while (len <= re_len && re[len] != ']' && result <= 0) {
     /* Support character range */
     if (re[len] != '-' && re[len + 1] == '-' && re[len + 2] != ']' &&
-        re[len + 2] != '\0') {
+      re[len + 2] != '\0') {
       result = info->flags &&  SLRE_IGNORE_CASE ?
         *s >= re[len] && *s <= re[len + 2] :
         tolower(*s) >= tolower(re[len]) && tolower(*s) <= tolower(re[len + 2]);
       len += 3;
-    } else {
-      result = match_op((unsigned char *) re + len, (unsigned char *) s, info);
+    }
+    else {
+      result = match_op((unsigned char *)re + len, (unsigned char *)s, info);
       len += op_len(re + len);
     }
   }
@@ -184,7 +186,7 @@ static int match_set(const char *re, int re_len, const char *s,
 static int doh(const char *s, int s_len, struct regex_info *info, int bi);
 
 static int bar(const char *re, int re_len, const char *s, int s_len,
-               struct regex_info *info, int bi) {
+struct regex_info *info, int bi) {
   /* i is offset in re, j is offset in s, bi is brackets index */
   int i, j, n, step;
 
@@ -195,19 +197,20 @@ static int bar(const char *re, int re_len, const char *s, int s_len,
       get_op_len(re + i, re_len - i);
 
     DBG(("%s [%.*s] [%.*s] re_len=%d step=%d i=%d j=%d\n", __func__,
-         re_len - i, re + i, s_len - j, s + j, re_len, step, i, j));
+      re_len - i, re + i, s_len - j, s + j, re_len, step, i, j));
 
     FAIL_IF(is_quantifier(&re[i]), SLRE_UNEXPECTED_QUANTIFIER);
     FAIL_IF(step <= 0, SLRE_INVALID_CHARACTER_SET);
 
     if (i + step < re_len && is_quantifier(re + i + step)) {
       DBG(("QUANTIFIER: [%.*s]%c [%.*s]\n", step, re + i,
-           re[i + step], s_len - j, s + j));
+        re[i + step], s_len - j, s + j));
       if (re[i + step] == '?') {
         int result = bar(re + i, step, s + j, s_len - j, info, bi);
         j += result > 0 ? result : 0;
         i++;
-      } else if (re[i + step] == '+' || re[i + step] == '*') {
+      }
+      else if (re[i + step] == '+' || re[i + step] == '*') {
         int j2 = j, nj = j, n1, n2 = -1, ni, non_greedy = 0;
 
         /* Points to the regexp code after the quantifier */
@@ -226,8 +229,9 @@ static int bar(const char *re, int re_len, const char *s, int s_len,
           if (ni >= re_len) {
             /* After quantifier, there is nothing */
             nj = j2;
-          } else if ((n2 = bar(re + ni, re_len - ni, s + j2,
-                               s_len - j2, info, bi)) >= 0) {
+          }
+          else if ((n2 = bar(re + ni, re_len - ni, s + j2,
+            s_len - j2, info, bi)) >= 0) {
             /* Regex after quantifier matched */
             nj = j2 + n2;
           }
@@ -235,7 +239,7 @@ static int bar(const char *re, int re_len, const char *s, int s_len,
         } while (n1 > 0);
 
         if (n1 < 0 && re[i + step] == '*' &&
-            (n2 = bar(re + ni, re_len - ni, s + j, s_len - j, info, bi)) > 0) {
+          (n2 = bar(re + ni, re_len - ni, s + j, s_len - j, info, bi)) > 0) {
           nj = j + n2;
         }
 
@@ -257,22 +261,24 @@ static int bar(const char *re, int re_len, const char *s, int s_len,
       DBG(("SET %.*s [%.*s] -> %d\n", step, re + i, s_len - j, s + j, n));
       FAIL_IF(n <= 0, SLRE_NO_MATCH);
       j += n;
-    } else if (re[i] == '(') {
+    }
+    else if (re[i] == '(') {
       n = SLRE_NO_MATCH;
       bi++;
       FAIL_IF(bi >= info->num_brackets, SLRE_INTERNAL_ERROR);
       DBG(("CAPTURING [%.*s] [%.*s] [%s]\n",
-           step, re + i, s_len - j, s + j, re + i + step));
+        step, re + i, s_len - j, s + j, re + i + step));
 
       if (re_len - (i + step) <= 0) {
         /* Nothing follows brackets */
         n = doh(s + j, s_len - j, info, bi);
-      } else {
+      }
+      else {
         int j2;
         for (j2 = 0; j2 <= s_len - j; j2++) {
           if ((n = doh(s + j, s_len - (j + j2), info, bi)) >= 0 &&
-              bar(re + i + step, re_len - (i + step),
-                  s + j + n, s_len - (j + n), info, bi) >= 0) break;
+            bar(re + i + step, re_len - (i + step),
+            s + j + n, s_len - (j + n), info, bi) >= 0) break;
         }
       }
 
@@ -283,13 +289,16 @@ static int bar(const char *re, int re_len, const char *s, int s_len,
         info->caps[bi - 1].len = n;
       }
       j += n;
-    } else if (re[i] == '^') {
+    }
+    else if (re[i] == '^') {
       FAIL_IF(j != 0, SLRE_NO_MATCH);
-    } else if (re[i] == '$') {
+    }
+    else if (re[i] == '$') {
       FAIL_IF(j != s_len, SLRE_NO_MATCH);
-    } else {
+    }
+    else {
       FAIL_IF(j >= s_len, SLRE_NO_MATCH);
-      n = match_op((unsigned char *) (re + i), (unsigned char *) (s + j), info);
+      n = match_op((unsigned char *)(re + i), (unsigned char *)(s + j), info);
       FAIL_IF(n <= 0, n);
       j += n;
     }
@@ -362,7 +371,7 @@ static void setup_branch_points(struct regex_info *info) {
 }
 
 static int foo(const char *re, int re_len, const char *s, int s_len,
-               struct regex_info *info) {
+struct regex_info *info) {
   int i, step, depth = 0;
 
   /* First bracket captures everything */
@@ -376,39 +385,43 @@ static int foo(const char *re, int re_len, const char *s, int s_len,
 
     if (re[i] == '|') {
       FAIL_IF(info->num_branches >= ARRAY_SIZE(info->branches),
-              SLRE_TOO_MANY_BRANCHES);
+        SLRE_TOO_MANY_BRANCHES);
       info->branches[info->num_branches].bracket_index =
         info->brackets[info->num_brackets - 1].len == -1 ?
         info->num_brackets - 1 : depth;
       info->branches[info->num_branches].schlong = &re[i];
       info->num_branches++;
-    } else if (re[i] == '\\') {
+    }
+    else if (re[i] == '\\') {
       FAIL_IF(i >= re_len - 1, SLRE_INVALID_METACHARACTER);
       if (re[i + 1] == 'x') {
         /* Hex digit specification must follow */
         FAIL_IF(re[i + 1] == 'x' && i >= re_len - 3,
-                SLRE_INVALID_METACHARACTER);
-        FAIL_IF(re[i + 1] ==  'x' && !(isxdigit(re[i + 2]) &&
-                isxdigit(re[i + 3])), SLRE_INVALID_METACHARACTER);
-      } else {
-        FAIL_IF(!is_metacharacter((unsigned char *) re + i + 1),
-                SLRE_INVALID_METACHARACTER);
+          SLRE_INVALID_METACHARACTER);
+        FAIL_IF(re[i + 1] == 'x' && !(isxdigit(re[i + 2]) &&
+          isxdigit(re[i + 3])), SLRE_INVALID_METACHARACTER);
       }
-    } else if (re[i] == '(') {
+      else {
+        FAIL_IF(!is_metacharacter((unsigned char *)re + i + 1),
+          SLRE_INVALID_METACHARACTER);
+      }
+    }
+    else if (re[i] == '(') {
       FAIL_IF(info->num_brackets >= ARRAY_SIZE(info->brackets),
-              SLRE_TOO_MANY_BRACKETS);
+        SLRE_TOO_MANY_BRACKETS);
       depth++;  /* Order is important here. Depth increments first. */
       info->brackets[info->num_brackets].ptr = re + i + 1;
       info->brackets[info->num_brackets].len = -1;
       info->num_brackets++;
       FAIL_IF(info->num_caps > 0 && info->num_brackets - 1 > info->num_caps,
-              SLRE_CAPS_ARRAY_TOO_SMALL);
-    } else if (re[i] == ')') {
+        SLRE_CAPS_ARRAY_TOO_SMALL);
+    }
+    else if (re[i] == ')') {
       int ind = info->brackets[info->num_brackets - 1].len == -1 ?
         info->num_brackets - 1 : depth;
       info->brackets[ind].len = &re[i] - info->brackets[ind].ptr;
       DBG(("SETTING BRACKET %d [%.*s]\n",
-           ind, info->brackets[ind].len, info->brackets[ind].ptr));
+        ind, info->brackets[ind].len, info->brackets[ind].ptr));
       depth--;
       FAIL_IF(depth < 0, SLRE_UNBALANCED_BRACKETS);
       FAIL_IF(i > 0 && re[i - 1] == '(', SLRE_NO_MATCH);
@@ -422,7 +435,7 @@ static int foo(const char *re, int re_len, const char *s, int s_len,
 }
 
 int slre_match(const char *regexp, const char *s, int s_len,
-               struct slre_cap *caps, int num_caps, int flags) {
+struct slre_cap *caps, int num_caps, int flags) {
   struct regex_info info;
 
   /* Initialize info structure */

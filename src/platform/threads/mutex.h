@@ -55,12 +55,12 @@ namespace PLATFORM
   };
 
   template <typename _Predicate>
-    class CCondition;
+  class CCondition;
 
   class CMutex : public PreventCopy
   {
     template <typename _Predicate>
-      friend class CCondition;
+    friend class CCondition;
   public:
     inline CMutex(void) :
       m_iLockCount(0)
@@ -226,57 +226,57 @@ namespace PLATFORM
   };
 
   template <typename _Predicate>
-    class CCondition : public PreventCopy
+  class CCondition : public PreventCopy
+  {
+  public:
+    inline CCondition(void) {}
+    inline ~CCondition(void)
     {
-    public:
-      inline CCondition(void) {}
-      inline ~CCondition(void)
-      {
-        m_condition.Broadcast();
-      }
+      m_condition.Broadcast();
+    }
 
-      inline void Broadcast(void)
-      {
-        m_condition.Broadcast();
-      }
+    inline void Broadcast(void)
+    {
+      m_condition.Broadcast();
+    }
 
-      inline void Signal(void)
-      {
-        m_condition.Signal();
-      }
+    inline void Signal(void)
+    {
+      m_condition.Signal();
+    }
 
-      inline bool Wait(CMutex &mutex, _Predicate &predicate)
-      {
-        while(!predicate)
-          m_condition.Wait(mutex.m_mutex);
+    inline bool Wait(CMutex &mutex, _Predicate &predicate)
+    {
+      while (!predicate)
+        m_condition.Wait(mutex.m_mutex);
+      return true;
+    }
+
+    inline bool Wait(CMutex &mutex, _Predicate &predicate, uint32_t iTimeout)
+    {
+      if (iTimeout == 0)
+        return Wait(mutex, predicate);
+
+      if (predicate)
         return true;
-      }
 
-      inline bool Wait(CMutex &mutex, _Predicate &predicate, uint32_t iTimeout)
+      bool bReturn(false);
+      bool bBreak(false);
+      CTimeout timeout(iTimeout);
+      uint32_t iMsLeft(0);
+
+      while (!bReturn && !bBreak)
       {
-        if (iTimeout == 0)
-          return Wait(mutex, predicate);
-
-        if (predicate)
-          return true;
-
-        bool bReturn(false);
-        bool bBreak(false);
-        CTimeout timeout(iTimeout);
-        uint32_t iMsLeft(0);
-
-        while (!bReturn && !bBreak)
-        {
-          iMsLeft = timeout.TimeLeft();
-          if ((bReturn = predicate) == false && (bBreak = iMsLeft == 0) == false)
-            m_condition.Wait(mutex.m_mutex, iMsLeft);
-        }
-        return bReturn;
+        iMsLeft = timeout.TimeLeft();
+        if ((bReturn = predicate) == false && (bBreak = iMsLeft == 0) == false)
+          m_condition.Wait(mutex.m_mutex, iMsLeft);
       }
+      return bReturn;
+    }
 
-    private:
-      CConditionImpl m_condition;
-    };
+  private:
+    CConditionImpl m_condition;
+  };
 
   class CEvent
   {
@@ -330,7 +330,7 @@ namespace PLATFORM
     void Set(bool bBroadcast = false)
     {
       CLockObject lock(m_mutex);
-      m_bSignaled  = true;
+      m_bSignaled = true;
       m_bBroadcast = bBroadcast;
     }
 

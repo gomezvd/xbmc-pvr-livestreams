@@ -52,16 +52,16 @@ static bool CheckVistaConditionFunctions(void)
     }
     else
     {
-      g_InitializeConditionVariable = (ConditionArg)     GetProcAddress(handle,"InitializeConditionVariable");
-      g_WakeConditionVariable       = (ConditionArg)     GetProcAddress(handle,"WakeConditionVariable");
-      g_WakeAllConditionVariable    = (ConditionArg)     GetProcAddress(handle,"WakeAllConditionVariable");
-      g_SleepConditionVariableCS    = (ConditionMutexArg)GetProcAddress(handle,"SleepConditionVariableCS");
+      g_InitializeConditionVariable = (ConditionArg)GetProcAddress(handle, "InitializeConditionVariable");
+      g_WakeConditionVariable = (ConditionArg)GetProcAddress(handle, "WakeConditionVariable");
+      g_WakeAllConditionVariable = (ConditionArg)GetProcAddress(handle, "WakeAllConditionVariable");
+      g_SleepConditionVariableCS = (ConditionMutexArg)GetProcAddress(handle, "SleepConditionVariableCS");
 
       // 1 when everything is resolved, 0 otherwise
       iHasVistaConditionFunctions = g_InitializeConditionVariable &&
-                                    g_WakeConditionVariable &&
-                                    g_WakeAllConditionVariable &&
-                                    g_SleepConditionVariableCS ? 1 : 0;
+        g_WakeConditionVariable &&
+        g_WakeAllConditionVariable &&
+        g_SleepConditionVariableCS ? 1 : 0;
     }
   }
   return iHasVistaConditionFunctions == 1;

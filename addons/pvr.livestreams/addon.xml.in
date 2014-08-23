@@ -2,7 +2,7 @@
 <addon
   id="pvr.livestreams"
   version="@VERSION@"
-  name="LiveStreams PVR"
+  name="LiveStreams PVR Client"
   provider-name="Zoltan Csizmadia">
   <requires>
     <c-pluff version="0.1"/>

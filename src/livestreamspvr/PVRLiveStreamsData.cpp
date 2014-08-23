@@ -67,12 +67,12 @@ inline bool GetAttributeValue(const xml_node<Ch> * pNode, const char* strAttribu
 
 PVRLiveStreamsData::PVRLiveStreamsData(void)
 {
-  m_strXMLTVUrl   = g_strTvgPath;
-  m_strXMLUrl     = g_strXMLPath;
+  m_strXMLTVUrl = g_strTvgPath;
+  m_strXMLUrl = g_strXMLPath;
   m_iEPGTimeShift = g_iEPGTimeShift;
-  m_bTSOverride   = g_bTSOverride;
-  m_iLastStart    = 0;
-  m_iLastEnd      = 0;
+  m_bTSOverride = g_bTSOverride;
+  m_iLastStart = 0;
+  m_iLastEnd = 0;
 
   m_bEGPLoaded = false;
 
@@ -94,7 +94,7 @@ PVRLiveStreamsData::~PVRLiveStreamsData(void)
   m_epg.clear();
 }
 
-bool PVRLiveStreamsData::LoadEPG(time_t iStart, time_t iEnd) 
+bool PVRLiveStreamsData::LoadEPG(time_t iStart, time_t iEnd)
 {
   if (m_strXMLTVUrl.IsEmpty())
   {
@@ -108,9 +108,9 @@ bool PVRLiveStreamsData::LoadEPG(time_t iStart, time_t iEnd)
   int iReaded = 0;
 
   int iCount = 0;
-  while(iCount < 3) // max 3 tries
+  while (iCount < 3) // max 3 tries
   {
-    if ((iReaded = GetCachedFileContents(TVG_FILE_NAME, m_strXMLTVUrl, data, g_bCacheEPG)) != 0) 
+    if ((iReaded = GetCachedFileContents(TVG_FILE_NAME, m_strXMLTVUrl, data, g_bCacheEPG)) != 0)
     {
       break;
     }
@@ -120,7 +120,7 @@ bool PVRLiveStreamsData::LoadEPG(time_t iStart, time_t iEnd)
       usleep(2 * 1000 * 1000); // sleep 2 sec before next try.
     }
   }
-  
+
   if (iReaded == 0)
   {
     XBMC->Log(LOG_ERROR, "Unable to load EPG file '%s':  file is missing or empty. After %d tries.", m_strXMLTVUrl.c_str(), iCount);
@@ -133,7 +133,7 @@ bool PVRLiveStreamsData::LoadEPG(time_t iStart, time_t iEnd)
   char * buffer;
 
   // gzip packed
-  if (data[0] == '\x1F' && data[1] == '\x8B' && data[2] == '\x08') 
+  if (data[0] == '\x1F' && data[1] == '\x8B' && data[2] == '\x08')
   {
     if (!GzipInflate(data, decompressed))
     {
@@ -150,14 +150,14 @@ bool PVRLiveStreamsData::LoadEPG(time_t iStart, time_t iEnd)
 
   // xml should starts with '<?xml'
   if (buffer[0] != '\x3C' || buffer[1] != '\x3F' || buffer[2] != '\x78' ||
-      buffer[3] != '\x6D' || buffer[4] != '\x6C')
+    buffer[3] != '\x6D' || buffer[4] != '\x6C')
   {
     // check for BOM
     if (buffer[0] != '\xEF' || buffer[1] != '\xBB' || buffer[2] != '\xBF')
     {
       // check for tar archive
       if (strcmp(buffer + 0x101, "ustar") ||
-          strcmp(buffer + 0x101, "GNUtar"))
+        strcmp(buffer + 0x101, "GNUtar"))
       {
         buffer += 0x200; // RECORDSIZE = 512
       }
@@ -170,11 +170,11 @@ bool PVRLiveStreamsData::LoadEPG(time_t iStart, time_t iEnd)
   }
 
   xml_document<> xmlDoc;
-  try 
+  try
   {
     xmlDoc.parse<0>(buffer);
-  } 
-  catch(parse_error p) 
+  }
+  catch (parse_error p)
   {
     XBMC->Log(LOG_ERROR, "Unable parse EPG XML: %s", p.what());
     m_bEGPLoaded = true;
@@ -190,18 +190,18 @@ bool PVRLiveStreamsData::LoadEPG(time_t iStart, time_t iEnd)
   }
 
   // clear previously loaded epg
-  if (m_epg.size() > 0) 
+  if (m_epg.size() > 0)
   {
     m_epg.clear();
   }
 
   int iBroadCastId = 0;
   xml_node<> *pChannelNode = NULL;
-  for(pChannelNode = pRootElement->first_node("channel"); pChannelNode; pChannelNode = pChannelNode->next_sibling("channel"))
+  for (pChannelNode = pRootElement->first_node("channel"); pChannelNode; pChannelNode = pChannelNode->next_sibling("channel"))
   {
     CStdString strName;
     CStdString strId;
-    if(!GetAttributeValue(pChannelNode, "id", strId))
+    if (!GetAttributeValue(pChannelNode, "id", strId))
     {
       continue;
     }
@@ -219,12 +219,12 @@ bool PVRLiveStreamsData::LoadEPG(time_t iStart, time_t iEnd)
     m_epg.push_back(epgChannel);
   }
 
-  if (m_epg.size() == 0) 
+  if (m_epg.size() == 0)
   {
     XBMC->Log(LOG_ERROR, "EPG channels not found.");
     return false;
   }
-  
+
   int iMinShiftTime = m_iEPGTimeShift;
   int iMaxShiftTime = m_iEPGTimeShift;
   if (!m_bTSOverride)
@@ -244,22 +244,22 @@ bool PVRLiveStreamsData::LoadEPG(time_t iStart, time_t iEnd)
 
   CStdString strEmpty = "";
   PVRLiveStreamsEpgChannel *epg = NULL;
-  for(pChannelNode = pRootElement->first_node("programme"); pChannelNode; pChannelNode = pChannelNode->next_sibling("programme"))
+  for (pChannelNode = pRootElement->first_node("programme"); pChannelNode; pChannelNode = pChannelNode->next_sibling("programme"))
   {
     CStdString strId;
     if (!GetAttributeValue(pChannelNode, "channel", strId))
       continue;
 
-    if (epg == NULL || epg->strId != strId) 
+    if (epg == NULL || epg->strId != strId)
     {
-      if ((epg = FindEpg(strId)) == NULL) 
+      if ((epg = FindEpg(strId)) == NULL)
         continue;
     }
 
     CStdString strStart;
     CStdString strStop;
 
-    if (!GetAttributeValue(pChannelNode, "start", strStart) || !GetAttributeValue(pChannelNode, "stop", strStop)) 
+    if (!GetAttributeValue(pChannelNode, "start", strStart) || !GetAttributeValue(pChannelNode, "stop", strStop))
     {
       continue;
     }
@@ -284,23 +284,23 @@ bool PVRLiveStreamsData::LoadEPG(time_t iStart, time_t iEnd)
     xml_node<> *pIconNode = pChannelNode->first_node("icon");
     if (pIconNode != NULL)
     {
-      if (!GetAttributeValue(pIconNode, "src", strIconPath)) 
+      if (!GetAttributeValue(pIconNode, "src", strIconPath))
       {
         strIconPath = "";
       }
     }
 
     PVRLiveStreamsEpgEntry entry;
-    entry.iBroadcastId    = ++iBroadCastId;
-    entry.iGenreType      = 0;
-    entry.iGenreSubType   = 0;
-    entry.strTitle        = strTitle;
-    entry.strPlot         = strDesc;
-    entry.strPlotOutline  = "";
-    entry.strIconPath     = strIconPath;
-    entry.startTime       = iTmpStart;
-    entry.endTime         = iTmpEnd;
-    entry.strGenreString  = strCategory;
+    entry.iBroadcastId = ++iBroadCastId;
+    entry.iGenreType = 0;
+    entry.iGenreSubType = 0;
+    entry.strTitle = strTitle;
+    entry.strPlot = strDesc;
+    entry.strPlotOutline = "";
+    entry.strIconPath = strIconPath;
+    entry.startTime = iTmpStart;
+    entry.endTime = iTmpEnd;
+    entry.strGenreString = strCategory;
 
     epg->epg.push_back(entry);
   }
@@ -313,7 +313,7 @@ bool PVRLiveStreamsData::LoadEPG(time_t iStart, time_t iEnd)
   return true;
 }
 
-bool PVRLiveStreamsData::LoadPlayList(void) 
+bool PVRLiveStreamsData::LoadPlayList(void)
 {
   if (m_strXMLUrl.IsEmpty())
   {
@@ -327,18 +327,18 @@ bool PVRLiveStreamsData::LoadPlayList(void)
     XBMC->Log(LOG_ERROR, "Unable to load playlist file '%s':  file is missing or empty.", m_strXMLUrl.c_str());
     return false;
   }
-  
+
   xml_document<> xmlDoc;
   try
   {
-      XBMC->Log(LOG_NOTICE, "Unable to parse playlist file: %s", strPlaylistContent.c_str());
-      xmlDoc.parse<0>((char*)strPlaylistContent.c_str());
+    XBMC->Log(LOG_NOTICE, "Unable to parse playlist file: %s", strPlaylistContent.c_str());
+    xmlDoc.parse<0>((char*)strPlaylistContent.c_str());
   }
   catch (parse_error p)
   {
-      XBMC->Log(LOG_ERROR, "Unable to parse playlist file: %s", p.what());
-      m_bEGPLoaded = true;
-      return false;
+    XBMC->Log(LOG_ERROR, "Unable to parse playlist file: %s", p.what());
+    m_bEGPLoaded = true;
+    return false;
   }
 
   xml_node<> *pRootElement = &xmlDoc;
@@ -348,68 +348,68 @@ bool PVRLiveStreamsData::LoadPlayList(void)
   int iChannelNum = g_iStartNumber;
   for (pChannelNode = pRootElement->first_node("item"); pChannelNode; pChannelNode = pChannelNode->next_sibling("item"))
   {
-      PVRLiveStreamsChannel channel;
-      CStdString str;
-      
-      channel.bRadio = false;
-      channel.iUniqueId = 0;
-      channel.iChannelNumber = 0;
-      channel.iEncryptionSystem = 0;
-      channel.iTvgShift = 0;
+    PVRLiveStreamsChannel channel;
+    CStdString str;
 
-      if (GetAttributeValue(pChannelNode, "id", str))
-          channel.iUniqueId = atoi(str);
-      else
-          channel.iUniqueId = (intptr_t)pChannelNode;
+    channel.bRadio = false;
+    channel.iUniqueId = 0;
+    channel.iChannelNumber = 0;
+    channel.iEncryptionSystem = 0;
+    channel.iTvgShift = 0;
 
-      GetNodeValue(pChannelNode, "title", str);
-      channel.strChannelName = XBMC->UnknownToUTF8(str);
+    GetNodeValue(pChannelNode, "title", str);
+    channel.strChannelName = XBMC->UnknownToUTF8(str);
 
-      GetNodeValue(pChannelNode, "link", str);
-      channel.strLink = str;
+    GetNodeValue(pChannelNode, "link", str);
+    channel.strLink = str;
 
-      GetNodeValue(pChannelNode, "thumbnail", str);
-      channel.strLogoPath = str;
-      
-      GetNodeValue(pChannelNode, "tvg-id", str);
-      channel.strTvgId = XBMC->UnknownToUTF8(str);
+    GetNodeValue(pChannelNode, "thumbnail", str);
+    channel.strLogoPath = str;
 
-      GetNodeValue(pChannelNode, "tvg-name", str);
-      channel.strTvgName = XBMC->UnknownToUTF8(str);
-      if (channel.strTvgName.length() == 0)
-          channel.strTvgName = channel.strChannelName;
+    GetNodeValue(pChannelNode, "tvg-id", str);
+    channel.strTvgId = XBMC->UnknownToUTF8(str);
 
-      GetNodeValue(pChannelNode, "tvg-shift", str);
-      channel.iTvgShift *= atoi(str) * 3600;
+    GetNodeValue(pChannelNode, "tvg-name", str);
+    channel.strTvgName = XBMC->UnknownToUTF8(str);
+    if (channel.strTvgName.length() == 0)
+      channel.strTvgName = channel.strChannelName;
 
-      GetNodeValue(pChannelNode, "radio", str);
-      channel.bRadio = strcmp(str, "true") == 0;
+    GetNodeValue(pChannelNode, "tvg-shift", str);
+    channel.iTvgShift *= atoi(str) * 3600;
 
-      if (GetNodeValue(pChannelNode, "number", str))
-          iChannelNum = atoi(str);
+    GetNodeValue(pChannelNode, "radio", str);
+    channel.bRadio = strcmp(str, "true") == 0;
 
-      channel.iChannelNumber = iChannelNum++;
-      channel.iEncryptionSystem = 0;
-      channel.strStreamURL = "";
+    if (GetNodeValue(pChannelNode, "number", str))
+      iChannelNum = atoi(str);
 
-      for (pRegexNode = pChannelNode->first_node("regex"); pRegexNode; pRegexNode = pRegexNode->next_sibling("regex"))
-      {
-          RegexParams regexParams;
+    channel.iChannelNumber = iChannelNum++;
+    channel.iEncryptionSystem = 0;
+    channel.strStreamURL = "";
 
-          for (pNode = pRegexNode->first_node(); pNode; pNode = pNode->next_sibling())
-              regexParams[pNode->name()] = pNode->value();
-          
-          if (regexParams.find("name") == regexParams.end())
-              continue;
+    if (GetAttributeValue(pChannelNode, "id", str))
+      channel.iUniqueId = atoi(str);
+    else
+      channel.iUniqueId = channel.iChannelNumber; // (intptr_t)pChannelNode;
 
-          channel.regexs[regexParams["name"]] = regexParams;
+    for (pRegexNode = pChannelNode->first_node("regex"); pRegexNode; pRegexNode = pRegexNode->next_sibling("regex"))
+    {
+      RegexParams regexParams;
 
-          XBMC->Log(LOG_NOTICE, "Regex name: %s", regexParams["name"].c_str());
-          XBMC->Log(LOG_NOTICE, "Regex page: %s", regexParams["page"].c_str());
-          XBMC->Log(LOG_NOTICE, "Regex expres: %s", regexParams["expres"].c_str());
-      }
+      for (pNode = pRegexNode->first_node(); pNode; pNode = pNode->next_sibling())
+        regexParams[pNode->name()] = pNode->value();
 
-      m_channels.push_back(channel);
+      if (regexParams.find("name") == regexParams.end())
+        continue;
+
+      channel.regexs[regexParams["name"]] = regexParams;
+
+      XBMC->Log(LOG_NOTICE, "Regex name: %s", regexParams["name"].c_str());
+      XBMC->Log(LOG_NOTICE, "Regex page: %s", regexParams["page"].c_str());
+      XBMC->Log(LOG_NOTICE, "Regex expres: %s", regexParams["expres"].c_str());
+    }
+
+    m_channels.push_back(channel);
   }
 
   xmlDoc.clear();
@@ -480,7 +480,8 @@ const char* PVRLiveStreamsData::GetChannelURL(const PVR_CHANNEL &channel)
     PVRLiveStreamsChannel& thisChannel = m_channels[i];
     if (thisChannel.iUniqueId == (int)channel.iUniqueId)
     {
-      if (!GetRegexParsed(thisChannel.strLink, thisChannel.regexs))
+      thisChannel.strStreamURL = thisChannel.strLink;
+      if (!GetRegexParsed(thisChannel.strStreamURL, thisChannel.regexs))
         return "";
       XBMC->Log(LOG_NOTICE, "GetChannelURL: %s", thisChannel.strStreamURL.c_str());
       return thisChannel.strStreamURL.c_str();
@@ -523,7 +524,7 @@ PVR_ERROR PVRLiveStreamsData::GetChannelGroupMembers(ADDON_HANDLE handle, const 
     for (unsigned int iPtr = 0; iPtr < myGroup->members.size(); iPtr++)
     {
       int iIndex = myGroup->members.at(iPtr);
-      if (iIndex < 0 || iIndex >= (int) m_channels.size())
+      if (iIndex < 0 || iIndex >= (int)m_channels.size())
         continue;
 
       PVRLiveStreamsChannel &channel = m_channels.at(iIndex);
@@ -532,7 +533,7 @@ PVR_ERROR PVRLiveStreamsData::GetChannelGroupMembers(ADDON_HANDLE handle, const 
 
       strncpy(xbmcGroupMember.strGroupName, group.strGroupName, sizeof(xbmcGroupMember.strGroupName) - 1);
       xbmcGroupMember.iChannelUniqueId = channel.iUniqueId;
-      xbmcGroupMember.iChannelNumber   = channel.iChannelNumber;
+      xbmcGroupMember.iChannelNumber = channel.iChannelNumber;
 
       PVR->TransferChannelGroupMember(handle, &xbmcGroupMember);
     }
@@ -546,10 +547,10 @@ PVR_ERROR PVRLiveStreamsData::GetEPGForChannel(ADDON_HANDLE handle, const PVR_CH
   vector<PVRLiveStreamsChannel>::iterator myChannel;
   for (myChannel = m_channels.begin(); myChannel < m_channels.end(); myChannel++)
   {
-    if (myChannel->iUniqueId != (int) channel.iUniqueId)
+    if (myChannel->iUniqueId != (int)channel.iUniqueId)
       continue;
 
-    if (!m_bEGPLoaded || iStart > m_iLastStart || iEnd > m_iLastEnd) 
+    if (!m_bEGPLoaded || iStart > m_iLastStart || iEnd > m_iLastEnd)
     {
       if (LoadEPG(iStart, iEnd))
       {
@@ -569,22 +570,22 @@ PVR_ERROR PVRLiveStreamsData::GetEPGForChannel(ADDON_HANDLE handle, const PVR_CH
     vector<PVRLiveStreamsEpgEntry>::iterator myTag;
     for (myTag = epg->epg.begin(); myTag < epg->epg.end(); myTag++)
     {
-      if ((myTag->endTime + iShift) < iStart) 
+      if ((myTag->endTime + iShift) < iStart)
         continue;
 
       EPG_TAG tag;
       memset(&tag, 0, sizeof(EPG_TAG));
 
-      tag.iUniqueBroadcastId  = myTag->iBroadcastId;
-      tag.strTitle            = myTag->strTitle.c_str();
-      tag.iChannelNumber      = myTag->iChannelId;
-      tag.startTime           = myTag->startTime + iShift;
-      tag.endTime             = myTag->endTime + iShift;
-      tag.strPlotOutline      = myTag->strPlotOutline.c_str();
-      tag.strPlot             = myTag->strPlot.c_str();
-      tag.strIconPath         = myTag->strIconPath.c_str();
-      tag.iGenreType          = EPG_GENRE_USE_STRING;        //myTag.iGenreType;
-      tag.iGenreSubType       = 0;                           //myTag.iGenreSubType;
+      tag.iUniqueBroadcastId = myTag->iBroadcastId;
+      tag.strTitle = myTag->strTitle.c_str();
+      tag.iChannelNumber = myTag->iChannelId;
+      tag.startTime = myTag->startTime + iShift;
+      tag.endTime = myTag->endTime + iShift;
+      tag.strPlotOutline = myTag->strPlotOutline.c_str();
+      tag.strPlot = myTag->strPlot.c_str();
+      tag.strIconPath = myTag->strIconPath.c_str();
+      tag.iGenreType = EPG_GENRE_USE_STRING;        //myTag.iGenreType;
+      tag.iGenreSubType = 0;                           //myTag.iGenreSubType;
       tag.strGenreDescription = myTag->strGenreString.c_str();
 
       PVR->TransferEpgEntry(handle, &tag);
@@ -628,7 +629,7 @@ int PVRLiveStreamsData::ParseDateTime(CStdString strDate, bool iDateFormat)
     sscanf(strDate, "%02d.%02d.%04d%02d:%02d:%02d", &timeinfo.tm_mday, &timeinfo.tm_mon, &timeinfo.tm_year, &timeinfo.tm_hour, &timeinfo.tm_min, &timeinfo.tm_sec);
   }
 
-  timeinfo.tm_mon  -= 1;
+  timeinfo.tm_mon -= 1;
   timeinfo.tm_year -= 1900;
   timeinfo.tm_isdst = -1;
 
@@ -641,13 +642,13 @@ PVRLiveStreamsChannel * PVRLiveStreamsData::FindChannel(const std::string &strId
   strTvgName.Replace(' ', '_');
 
   vector<PVRLiveStreamsChannel>::iterator it;
-  for(it = m_channels.begin(); it < m_channels.end(); it++)
+  for (it = m_channels.begin(); it < m_channels.end(); it++)
   {
     if (it->strTvgId == strId)
     {
       return &*it;
     }
-    if (strTvgName == "") 
+    if (strTvgName == "")
     {
       continue;
     }
@@ -667,7 +668,7 @@ PVRLiveStreamsChannel * PVRLiveStreamsData::FindChannel(const std::string &strId
 PVRLiveStreamsChannelGroup * PVRLiveStreamsData::FindGroup(const std::string &strName)
 {
   vector<PVRLiveStreamsChannelGroup>::iterator it;
-  for(it = m_groups.begin(); it < m_groups.end(); it++)
+  for (it = m_groups.begin(); it < m_groups.end(); it++)
   {
     if (it->strGroupName == strName)
     {
@@ -681,7 +682,7 @@ PVRLiveStreamsChannelGroup * PVRLiveStreamsData::FindGroup(const std::string &st
 PVRLiveStreamsEpgChannel * PVRLiveStreamsData::FindEpg(const std::string &strId)
 {
   vector<PVRLiveStreamsEpgChannel>::iterator it;
-  for(it = m_epg.begin(); it < m_epg.end(); it++)
+  for (it = m_epg.begin(); it < m_epg.end(); it++)
   {
     if (it->strId == strId)
     {
@@ -695,7 +696,7 @@ PVRLiveStreamsEpgChannel * PVRLiveStreamsData::FindEpg(const std::string &strId)
 PVRLiveStreamsEpgChannel * PVRLiveStreamsData::FindEpgForChannel(PVRLiveStreamsChannel &channel)
 {
   vector<PVRLiveStreamsEpgChannel>::iterator it;
-  for(it = m_epg.begin(); it < m_epg.end(); it++)
+  for (it = m_epg.begin(); it < m_epg.end(); it++)
   {
     if (it->strId == channel.strTvgId)
     {
@@ -722,85 +723,85 @@ PVRLiveStreamsEpgChannel * PVRLiveStreamsData::FindEpgForChannel(PVRLiveStreamsC
  * Author: Andrew Lim Chong Liang
  * http://windrealm.org
  */
-bool PVRLiveStreamsData::GzipInflate( const std::string& compressedBytes, std::string& uncompressedBytes ) {  
+bool PVRLiveStreamsData::GzipInflate(const std::string& compressedBytes, std::string& uncompressedBytes) {
 
-#define HANDLE_CALL_ZLIB(status) {   \
-  if(status != Z_OK) {        \
-    free(uncomp);             \
-    return false;             \
-  }                           \
+#define HANDLE_CALL_ZLIB(status) {  \
+  if(status != Z_OK) {              \
+    free(uncomp);                   \
+    return false;                   \
+    }                               \
 }
 
-  if ( compressedBytes.size() == 0 ) 
-  {  
-    uncompressedBytes = compressedBytes ;  
-    return true ;  
-  }  
-  
-  uncompressedBytes.clear() ;  
-  
-  unsigned full_length = compressedBytes.size() ;  
-  unsigned half_length = compressedBytes.size() / 2;  
-  
-  unsigned uncompLength = full_length ;  
-  char* uncomp = (char*) calloc( sizeof(char), uncompLength );  
-  
-  z_stream strm;  
-  strm.next_in = (Bytef *) compressedBytes.c_str();  
-  strm.avail_in = compressedBytes.size() ;  
-  strm.total_out = 0;  
-  strm.zalloc = Z_NULL;  
-  strm.zfree = Z_NULL;  
-  
-  bool done = false ;  
-  
-  HANDLE_CALL_ZLIB(inflateInit2(&strm, (16+MAX_WBITS)));
-  
-  while (!done) 
-  {  
+  if (compressedBytes.size() == 0)
+  {
+    uncompressedBytes = compressedBytes;
+    return true;
+  }
+
+  uncompressedBytes.clear();
+
+  unsigned full_length = compressedBytes.size();
+  unsigned half_length = compressedBytes.size() / 2;
+
+  unsigned uncompLength = full_length;
+  char* uncomp = (char*)calloc(sizeof(char), uncompLength);
+
+  z_stream strm;
+  strm.next_in = (Bytef *)compressedBytes.c_str();
+  strm.avail_in = compressedBytes.size();
+  strm.total_out = 0;
+  strm.zalloc = Z_NULL;
+  strm.zfree = Z_NULL;
+
+  bool done = false;
+
+  HANDLE_CALL_ZLIB(inflateInit2(&strm, (16 + MAX_WBITS)));
+
+  while (!done)
+  {
     // If our output buffer is too small  
-    if (strm.total_out >= uncompLength ) 
+    if (strm.total_out >= uncompLength)
     {
       // Increase size of output buffer  
-      uncomp = (char *) realloc(uncomp, uncompLength + half_length);
+      uncomp = (char *)realloc(uncomp, uncompLength + half_length);
       if (uncomp == NULL)
         return false;
-      uncompLength += half_length ;  
-    }  
-  
-    strm.next_out = (Bytef *) (uncomp + strm.total_out);  
-    strm.avail_out = uncompLength - strm.total_out;  
-  
+      uncompLength += half_length;
+    }
+
+    strm.next_out = (Bytef *)(uncomp + strm.total_out);
+    strm.avail_out = uncompLength - strm.total_out;
+
     // Inflate another chunk.  
-    int err = inflate (&strm, Z_SYNC_FLUSH);  
-    if (err == Z_STREAM_END) 
-      done = true;  
-    else if (err != Z_OK)  
-    {  
-      break;  
-    }  
-  }  
-  
-  HANDLE_CALL_ZLIB(inflateEnd (&strm));
-  
-  for ( size_t i=0; i<strm.total_out; ++i ) 
-  {  
-    uncompressedBytes += uncomp[ i ];  
-  }  
+    int err = inflate(&strm, Z_SYNC_FLUSH);
+    if (err == Z_STREAM_END)
+      done = true;
+    else if (err != Z_OK)
+    {
+      break;
+    }
+  }
 
-  free( uncomp );  
-  return true ;  
-}  
+  HANDLE_CALL_ZLIB(inflateEnd(&strm));
 
-int PVRLiveStreamsData::GetCachedFileContents(const std::string &strCachedName, const std::string &filePath, 
-                                       std::string &strContents, const bool bUseCache /* false */)
+  for (size_t i = 0; i < strm.total_out; ++i)
+  {
+    uncompressedBytes += uncomp[i];
+  }
+
+  free(uncomp);
+  return true;
+}
+
+int PVRLiveStreamsData::GetCachedFileContents(const std::string &strCachedName, const std::string &filePath,
+  std::string &strContents, const bool bUseCache /* false */)
 {
   bool bNeedReload = false;
   CStdString strCachedPath = GetUserFilePath(strCachedName);
   CStdString strFilePath = filePath;
 
   // check cached file is exists
-  if (bUseCache && XBMC->FileExists(strCachedPath, false)) 
+  if (bUseCache && XBMC->FileExists(strCachedPath, false))
   {
     struct __stat64 statCached;
     struct __stat64 statOrig;
@@ -809,18 +810,18 @@ int PVRLiveStreamsData::GetCachedFileContents(const std::string &strCachedName, 
     XBMC->StatFile(strFilePath, &statOrig);
 
     bNeedReload = statCached.st_mtime < statOrig.st_mtime || statOrig.st_mtime == 0;
-  } 
-  else 
+  }
+  else
   {
     bNeedReload = true;
   }
 
-  if (bNeedReload) 
+  if (bNeedReload)
   {
     GetFileContents(strFilePath, strContents);
 
     // write to cache
-    if (bUseCache && strContents.length() > 0) 
+    if (bUseCache && strContents.length() > 0)
     {
       void* fileHandle = XBMC->OpenFileForWrite(strCachedPath, true);
       if (fileHandle)
@@ -830,214 +831,189 @@ int PVRLiveStreamsData::GetCachedFileContents(const std::string &strCachedName, 
       }
     }
     return strContents.length();
-  } 
+  }
 
   return GetFileContents(strCachedPath, strContents);
 }
 
 bool PVRLiveStreamsData::SplitURL(const std::string& uri, std::string& protocol, std::string& host, std::string& port, std::string& path)
 {
-    typedef std::string::const_iterator iterator_t;
+  typedef std::string::const_iterator iterator_t;
 
-    if (uri.length() == 0)
-        return false;
+  if (uri.length() == 0)
+    return false;
 
-    iterator_t uriEnd = uri.end();
+  iterator_t uriEnd = uri.end();
 
-    // protocol
-    iterator_t protocolStart = uri.begin();
-    iterator_t protocolEnd = std::find(protocolStart, uriEnd, ':'); //"://");
+  // protocol
+  iterator_t protocolStart = uri.begin();
+  iterator_t protocolEnd = std::find(protocolStart, uriEnd, ':'); //"://");
 
-    if (protocolEnd != uriEnd)
+  if (protocolEnd != uriEnd)
+  {
+    std::string prot = &*(protocolEnd);
+    if ((prot.length() > 3) && (prot.substr(0, 3) == "://"))
     {
-        std::string prot = &*(protocolEnd);
-        if ((prot.length() > 3) && (prot.substr(0, 3) == "://"))
-        {
-            protocol = std::string(protocolStart, protocolEnd);
-            protocolEnd += 3;   //      ://
-        }
-        else
-        {
-            protocol = "http";
-            protocolEnd = uri.begin();  // no protocol
-        }
+      protocol = std::string(protocolStart, protocolEnd);
+      protocolEnd += 3;   //      ://
     }
     else
-        protocolEnd = uri.begin();  // no protocol
-
-    // host
-    iterator_t hostStart = protocolEnd;
-    iterator_t pathStart = std::find(hostStart, uriEnd, '/');  // get pathStart
-
-    iterator_t hostEnd = std::find(protocolEnd, pathStart, ':'); // check for port
-
-    if (hostStart == hostEnd)
-        return false;
-
-    host = std::string(hostStart, hostEnd);
-
-    // port
-    if ((hostEnd != uriEnd) && ((&*(hostEnd))[0] == ':'))  // we have a port
     {
-        hostEnd++;
-        port = std::string(hostEnd, pathStart);
+      protocol = "http";
+      protocolEnd = uri.begin();  // no protocol
     }
-    else
-        port = "80";
+  }
+  else
+    protocolEnd = uri.begin();  // no protocol
 
-    // path
-    if (pathStart != uriEnd)
-        path = std::string(pathStart, uri.end());
-    else
-        path = "/";
+  // host
+  iterator_t hostStart = protocolEnd;
+  iterator_t pathStart = std::find(hostStart, uriEnd, '/');  // get pathStart
 
-    return true;
+  iterator_t hostEnd = std::find(protocolEnd, pathStart, ':'); // check for port
+
+  if (hostStart == hostEnd)
+    return false;
+
+  host = std::string(hostStart, hostEnd);
+
+  // port
+  if ((hostEnd != uriEnd) && ((&*(hostEnd))[0] == ':'))  // we have a port
+  {
+    hostEnd++;
+    port = std::string(hostEnd, pathStart);
+  }
+  else
+    port = "80";
+
+  // path
+  if (pathStart != uriEnd)
+    path = std::string(pathStart, uri.end());
+  else
+    path = "/";
+
+  return true;
 }   // Parse
 
 bool PVRLiveStreamsData::DownloadURL(const std::string& host, unsigned short port, const std::string& path, const std::vector<std::pair<std::string, std::string> >& headers, const std::string& data, std::string& response)
 {
-	char buffer[8 * 1024];
-	int nDataLength;
-    size_t i;
-    std::string request;
-         
-	PLATFORM::CTcpSocket conn(host, port);
+  char buffer[8 * 1024];
+  int nDataLength;
+  size_t i;
+  std::string request;
 
-	if (!conn.Open(10000))
-	{
-		XBMC->Log(LOG_ERROR, "CTcpSocket::Open(%s) failed!", host.c_str());
-		return false;
-	}
+  PLATFORM::CTcpSocket conn(host, port);
 
-    request = "GET " + path + " HTTP/1.1\r\n";
-    for (i = 0; i < headers.size(); i++)
-        request += headers[i].first + ": " + headers[i].second + "\r\n";
-    request += "\r\n";
+  if (!conn.Open(10000))
+    return false;
+  
+  request = "GET " + path + " HTTP/1.1\r\n";
+  for (i = 0; i < headers.size(); i++)
+    request += headers[i].first + ": " + headers[i].second + "\r\n";
+  request += "\r\n";
 
-    if ((size_t)conn.Write((void*)request.c_str(), request.length()) != request.length())
-    {
-		XBMC->Log(LOG_ERROR, "CTcpSocket::Write failed!");
-		return false;
-	}
-
-    if (data.length())
-    {
-		if ((size_t)conn.Write((void*)data.c_str(), data.length()) != data.length())
-		{
-			XBMC->Log(LOG_ERROR, "CTcpSocket::Write failed!");
-			return false;
-		}
-    }
+  if ((size_t)conn.Write((void*)request.c_str(), request.length()) != request.length())
+    return false;
+  
+  if (data.length())
+    if ((size_t)conn.Write((void*)data.c_str(), data.length()) != data.length())
+      return false;
+  
+  for (;;)
+  {
+    nDataLength = conn.ReadSome(buffer, sizeof(buffer) - 1, 5000);
+    if (nDataLength <= 0)
+      break;
     
-	for (;;)
-    {
-		nDataLength = conn.ReadSome(buffer, sizeof(buffer) - 1, 5000);
-		if (nDataLength <= 0)
-		{
-			XBMC->Log(LOG_ERROR, "CTcpSocket::Read failed!");
-			break;
-		}
+    buffer[nDataLength] = 0;
+    response += buffer;
+  }
 
-        buffer[nDataLength] = 0;
-        response += buffer;
-    }
+  conn.Close();
 
-	conn.Close();
-
-    return true;
+  return true;
 }
 
 bool PVRLiveStreamsData::GetRegexParsed(std::string& url, RegexParamsTable& regexs)
 {
-    std::map<std::string, std::string> cachedPages;
-    struct slre_cap cap;
-    std::string link;
+  std::map<std::string, std::string> cachedPages;
+  struct slre_cap cap;
+  std::string link;
 
-    while (slre_match("\\$doregex\\[([^\\]]*)\\]", url.c_str(), url.length(), &cap, 1, 0) >= 0)
+  while (slre_match("\\$doregex\\[([^\\]]*)\\]", url.c_str(), url.length(), &cap, 1, 0) >= 0)
+  {
+    std::string strMatch(cap.ptr, cap.len);
+    std::string strMatchFull = "$doregex[" + strMatch + "]";
+
+    RegexParamsTable::iterator regexParamsIter = regexs.find(strMatch);
+
+    if (regexParamsIter == regexs.end())
+      break;
+
+    RegexParams& regexParams = regexParamsIter->second;
+
+    if (regexParams.find("page") == regexParams.end() || regexParams.find("expres") == regexParams.end())
+      break;
+
+    if (cachedPages.find(regexParams["page"]) == cachedPages.end())
     {
-        std::string strMatch(cap.ptr, cap.len);
-        std::string strMatchFull = "$doregex[" + strMatch + "]";
+      std::vector<std::pair<std::string, std::string> > headers;
+      std::string response;
 
-        //XBMC->Log(LOG_NOTICE, "CTcpSocket::GetRegexParsed (%s %s)", strMatch.c_str(), strMatchFull.c_str());
+      std::string protocol, host_name, port, path, request;
 
-        RegexParamsTable::iterator regexParamsIter = regexs.find(strMatch);
+      if (!SplitURL(regexParams["page"], protocol, host_name, port, path))
+      {
+        XBMC->Log(LOG_ERROR, "SplitURL failed!");
+        break;
+      }
 
-        if (regexParamsIter == regexs.end())
-            continue;
+      if (regexParams.find("host") != regexParams.end())
+        headers.push_back(std::make_pair("Host", regexParams["host"]));
+      else
+        headers.push_back(std::make_pair("Host", host_name));
 
-        RegexParams& regexParams = regexParamsIter->second;
+      if (regexParams.find("agent") != regexParams.end())
+        headers.push_back(std::make_pair("Agent", regexParams["agent"]));
 
-        if (regexParams.find("page") == regexParams.end() ||
-            regexParams.find("expres") == regexParams.end())
-            continue;
+      if (regexParams.find("referer") != regexParams.end())
+        headers.push_back(std::make_pair("Referer", regexParams["referer"]));
 
-        if (cachedPages.find(regexParams["page"]) == cachedPages.end())
-        {
-            std::vector<std::pair<std::string, std::string> > headers;
-            std::string response;
+      if (regexParams.find("connection") != regexParams.end())
+        headers.push_back(std::make_pair("Connection", regexParams["connection"]));
+      else
+        headers.push_back(std::make_pair("Connection", "close"));
 
-            std::string protocol, host_name, port, path, request;
+      if (!DownloadURL(host_name, (unsigned short)atoi(port.c_str()), path, headers, regexParams["data"], response))
+      {
+        XBMC->Log(LOG_ERROR, "DownloadURL failed!");
+        break;
+      }
 
-            if (!SplitURL(regexParams["page"], protocol, host_name, port, path))
-            {
-                XBMC->Log(LOG_ERROR, "SplitURL failed!");
-                break;
-            }
+      size_t pos = response.find("\r\n\r\n");
+      if (pos == std::string::npos)
+        break;
 
-            if (regexParams.find("host") != regexParams.end())
-                headers.push_back(std::make_pair("Host", regexParams["host"]));
-            else
-                headers.push_back(std::make_pair("Host", host_name));
-
-            if (regexParams.find("agent") != regexParams.end())
-                headers.push_back(std::make_pair("Agent", regexParams["agent"]));
-
-            if (regexParams.find("referer") != regexParams.end())
-                headers.push_back(std::make_pair("Referer", regexParams["referer"]));
-
-            if (regexParams.find("connection") != regexParams.end())
-                headers.push_back(std::make_pair("Connection", regexParams["connection"]));
-            else
-                headers.push_back(std::make_pair("Connection", "close"));
-
-            //XBMC->Log(LOG_NOTICE, "%s", regexParams["page"].c_str());
-
-            if (!DownloadURL(host_name, (unsigned short)atoi(port.c_str()), path, headers, regexParams["data"], response))
-            {
-                //XBMC->Log(LOG_ERROR, "DownloadURL failed!");
-                break;
-                //continue;
-            }
-
-            size_t pos = response.find("\r\n\r\n");
-            if (pos == std::string::npos)
-            {
-                //XBMC->Log(LOG_ERROR, "Invalid http response!");
-                continue;
-            }
-
-            link = response.c_str() + pos;
-            cachedPages[regexParams["page"]] = link;
-        }
-        else
-            link = cachedPages[regexParams["page"]];
-
-        //XBMC->Log(LOG_NOTICE, "CTcpSocket::GetRegexParsed matching ... %s", nMatches, regexParams["expres"].c_str());
-
-        if (slre_match(regexParams["expres"].c_str(), link.c_str(), link.length(), &cap, 1, 0) < 0)
-            continue;
-
-        std::string data(cap.ptr, cap.len);
-
-        //if (regexParams.find("function") != regexParams.end() && regexParams["function"] == "unquote")
-        //    data = urllib.unquote(data)
-
-        size_t pos = url.find(strMatchFull);
-        if (pos == std::string::npos)
-            continue;
-
-        url.replace(pos, strMatchFull.length(), data);
+      link = response.c_str() + pos;
+      cachedPages[regexParams["page"]] = link;
     }
+    else
+      link = cachedPages[regexParams["page"]];
 
-    return true;
+    if (slre_match(regexParams["expres"].c_str(), link.c_str(), link.length(), &cap, 1, 0) < 0)
+      break;
+
+    std::string data(cap.ptr, cap.len);
+
+    //if (regexParams.find("function") != regexParams.end() && regexParams["function"] == "unquote")
+    //    data = urllib.unquote(data)
+
+    size_t pos = url.find(strMatchFull);
+    if (pos == std::string::npos)
+      break;
+
+    url.replace(pos, strMatchFull.length(), data);
+  }
+
+  return true;
 }

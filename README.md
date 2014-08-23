@@ -10,7 +10,6 @@ Written by: Zoltan Csizmadia
 
 Based on: 
 
-
           XBMC IPTV Simple Add-on by Anton Fedchin 
           https://github.com/afedchin/xbmc-addon-iptvsimple
 
@@ -19,7 +18,6 @@ Based on:
 
           XBMC LiveStreams Video Add-on by divingmule
           https://github.com/divingmule/plugin.video.live.streams
-
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by

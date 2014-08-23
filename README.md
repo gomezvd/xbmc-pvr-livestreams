@@ -8,7 +8,9 @@ EPG TV Guide.
 
 Written by: Zoltan Csizmadia
 
-Based on: XBMC IPTV Simple Add-on by Anton Fedchin 
+Based on: 
+
+          XBMC IPTV Simple Add-on by Anton Fedchin 
           https://github.com/afedchin/xbmc-addon-iptvsimple
 
           XBMC PVR Demo Add-on by Pulse-Eight 
@@ -52,5 +54,3 @@ This will prepare zip file in current folder to install the plugin via XBMC inte
 
 IMPORTANT:
 Please disable *all* PVR addons *before* installing the LiveStreams PVR addon!
-
-Have fun, ...

@@ -189,6 +189,7 @@ extern "C" {
     }
 
     XBMC->Log(LOG_DEBUG, "%s - Creating the LiveStreams PVR add-on", __FUNCTION__);
+    XBMC->Log(LOG_DEBUG, "Built on: " __DATE__ " " __TIME__);
 
     m_CurStatus = ADDON_STATUS_UNKNOWN;
     g_strUserPath = pvrprops->strUserPath;

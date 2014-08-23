@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+
+<item>
+<title>M1 TV</title>
+<link>$doregex[file]</link>
+<tvg-name>MTV1</tvg-name>
+<tvg-id>I9.753358.microsoft.com</tvg-id>
+<regex>
+<name>file</name>
+<expres>'file': '([^']*)</expres>
+<page>http://admin.gamaxmedia.hu/player-inside-full?streamid=mtv1live&amp;userid=mtva&amp;height=260&amp;width=460</page>
+<referer>http://www.mediaklikk.hu/media-lejatszo/?ch=1</referer>
+</regex>
+<thumbnail>http://mindigtv.hu/files/tiny_mce/Image/m1_hd_logo_2012_08.png</thumbnail>
+</item>
+
+<item>
+<title>M2 TV</title>
+<link>$doregex[file]</link>
+<tvg-name>M2</tvg-name>
+<tvg-id>I6.751010.microsoft.com</tvg-id>
+<regex>
+<name>file</name>
+<expres>'file': '([^']*)</expres>
+<page>http://admin.gamaxmedia.hu/player-inside-full?streamid=mtv2live&amp;userid=mtva&amp;height=260&amp;width=460</page>
+</regex>
+<thumbnail>http://mindigtv.hu/files/tiny_mce/Image/m2_hd_logo_2012_08.png</thumbnail>
+</item>
+
+<item>
+<title>Duna TV</title>
+<link>$doregex[file]</link>
+<tvg-id>I3.750999.microsoft.com</tvg-id>
+<regex>
+<name>file</name>
+<expres>'file': '([^']*)</expres>
+<page>http://admin.gamaxmedia.hu/player-inside-full?streamid=dunalive&amp;userid=mtva&amp;height=260&amp;width=460</page>
+</regex>
+<thumbnail>D:\\Temp\\Logos\\DunaTV.png</thumbnail>
+</item>
+
+<item>
+<title>Duna World</title>
+<link>$doregex[file]</link>
+<regex>
+<name>file</name>
+<expres>'file': '([^']*)</expres>
+<page>http://admin.gamaxmedia.hu/player-inside-full?streamid=dunaworldlive&amp;userid=mtva&amp;height=260&amp;width=460</page>
+</regex>
+<thumbnail>D:\\Temp\\Logos\\DunaWorld.png</thumbnail>
+</item>
+
+<item>
+<title>ATV</title>
+<link>rtmp://195.228.75.97/ app=atvliveedge/_definst_ playpath=atvstream_2_aac swfUrl=http://www.atv.hu/js/flowplayer/flowplayer-3.2.15.swf live=true timeout=15 pageUrl=http://www.atv.hu/elo-adas</link>
+<thumbnail>D:\\Temp\\Logos\\ATV.png</thumbnail>
+</item>
+
+<item>
+<title>Hir TV</title>
+<link>http://streamtwo.mno.netrix.hu/hls_delayed/live_ep_512k.m3u8</link>
+<thumbnail>D:\\Temp\\Logos\\HirTV.png</thumbnail>
+</item>

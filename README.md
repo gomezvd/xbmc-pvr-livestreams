@@ -27,7 +27,13 @@ See the file COPYING for more information.
 
 ---------------------------------------------
 
-ADDON COMPILATION
+Precompiled binaries
+
+Precompiled zip packages can be found in "release" folder.
+
+---------------------------------------------
+
+How to compile
 
 =============================
        Linux, OS-X, BSD

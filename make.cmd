@@ -123,7 +123,7 @@ set zipfile=pvr.livestreams.%maj%.%min%.%mic%.zip
 
 if exist %zipfile% del %zipfile% > NUL
 
-%zip% a %zipfile% addons\pvr.livestreams -xr!*.in -xr!*.am -xr!.gitignore >nul
+%zip% a %zipfile% .\addons\pvr.livestreams -xr!*.in -xr!*.am -xr!.gitignore >nul
 
 if exist test.tmp del test.tmp
 

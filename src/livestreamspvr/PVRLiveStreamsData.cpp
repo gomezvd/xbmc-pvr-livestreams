@@ -390,7 +390,7 @@ bool PVRLiveStreamsData::LoadPlayList(void)
     if (GetAttributeValue(pChannelNode, "id", str))
       channel.iUniqueId = atoi(str);
     else
-      channel.iUniqueId = channel.iChannelNumber; // (intptr_t)pChannelNode;
+      channel.iUniqueId = GetChannelId(channel.strChannelName.c_str(), channel.strLink.c_str());
 
     for (pRegexNode = pChannelNode->first_node("regex"); pRegexNode; pRegexNode = pRegexNode->next_sibling("regex"))
     {
@@ -994,11 +994,13 @@ bool PVRLiveStreamsData::GetRegexParsed(std::string& url, RegexParamsTable& rege
       if (pos == std::string::npos)
         break;
 
-      link = response.c_str() + pos;
+      link = response.c_str() + pos + 4;
       cachedPages[regexParams["page"]] = link;
     }
     else
       link = cachedPages[regexParams["page"]];
+
+    XBMC->Log(LOG_NOTICE, "Searching for %s in %s", regexParams["expres"].c_str(), link.c_str());
 
     if (slre_match(regexParams["expres"].c_str(), link.c_str(), link.length(), &cap, 1, 0) < 0)
       break;
@@ -1016,4 +1018,18 @@ bool PVRLiveStreamsData::GetRegexParsed(std::string& url, RegexParamsTable& rege
   }
 
   return true;
+}
+
+int PVRLiveStreamsData::GetChannelId(const char * strChannelName, const char * strStreamUrl)
+{
+  std::string concat(strChannelName);
+  concat.append(strStreamUrl);
+
+  const char* strString = concat.c_str();
+  int iId = 0;
+  int c;
+  while (c = *strString++)
+    iId = ((iId << 5) + iId) + c; /* iId * 33 + c */
+
+  return abs(iId);
 }

@@ -128,6 +128,16 @@ struct regex_info *info) {
       result++;
       break;
 
+    case 'n':
+      FAIL_IF('\n' == *s, SLRE_NO_MATCH);
+      result++;
+      break;
+
+    case 'r':
+      FAIL_IF('\r' == *s, SLRE_NO_MATCH);
+      result++;
+      break;
+
     case 'x':
       /* Match byte, \xHH where HH is hexadecimal byte representaion */
       FAIL_IF(hextoi(re + 2) != *s, SLRE_NO_MATCH);

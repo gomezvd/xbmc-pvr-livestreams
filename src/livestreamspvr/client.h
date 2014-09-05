@@ -30,7 +30,7 @@
 #include "libXBMC_pvr.h"
 #include "libXBMC_gui.h"
 
-#define PVR_CLIENT_VERSION    "1.0.1"
+#define PVR_CLIENT_VERSION    "1.0.2"
 #define XML_FILE_NAME         "livestreams.xml.cache"
 #define TVG_FILE_NAME         "xmltv.xml.cache"
 

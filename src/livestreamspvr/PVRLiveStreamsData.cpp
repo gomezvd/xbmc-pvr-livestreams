@@ -948,12 +948,12 @@ bool PVRLiveStreamsData::GetRegexParsed(std::string& url, RegexParamsTable& rege
     RegexParamsTable::iterator regexParamsIter = regexs.find(strMatch);
 
     if (regexParamsIter == regexs.end())
-      break;
+      return false;
 
     RegexParams& regexParams = regexParamsIter->second;
 
     if (regexParams.find("page") == regexParams.end() || regexParams.find("expres") == regexParams.end())
-      break;
+      return false;
 
     if (cachedPages.find(regexParams["page"]) == cachedPages.end())
     {
@@ -965,7 +965,7 @@ bool PVRLiveStreamsData::GetRegexParsed(std::string& url, RegexParamsTable& rege
       if (!SplitURL(regexParams["page"], protocol, host_name, port, path))
       {
         XBMC->Log(LOG_ERROR, "SplitURL failed!");
-        break;
+        return false;
       }
 
       if (regexParams.find("host") != regexParams.end())
@@ -987,12 +987,12 @@ bool PVRLiveStreamsData::GetRegexParsed(std::string& url, RegexParamsTable& rege
       if (!DownloadURL(host_name, (unsigned short)atoi(port.c_str()), path, headers, regexParams["data"], response))
       {
         XBMC->Log(LOG_ERROR, "DownloadURL failed!");
-        break;
+        return false;
       }
 
       size_t pos = response.find("\r\n\r\n");
       if (pos == std::string::npos)
-        break;
+        return false;
 
       link = response.c_str() + pos + 4;
       cachedPages[regexParams["page"]] = link;
@@ -1000,10 +1000,14 @@ bool PVRLiveStreamsData::GetRegexParsed(std::string& url, RegexParamsTable& rege
     else
       link = cachedPages[regexParams["page"]];
 
-    XBMC->Log(LOG_NOTICE, "Searching for %s in %s", regexParams["expres"].c_str(), link.c_str());
+    XBMC->Log(LOG_NOTICE, "Searching for %s", regexParams["expres"].c_str());
 
+    memset(&cap, 0, sizeof(cap));
     if (slre_match(regexParams["expres"].c_str(), link.c_str(), link.length(), &cap, 1, 0) < 0)
-      break;
+      return false;
+
+    if (cap.ptr == NULL)
+      return false;
 
     std::string data(cap.ptr, cap.len);
 
@@ -1012,7 +1016,7 @@ bool PVRLiveStreamsData::GetRegexParsed(std::string& url, RegexParamsTable& rege
 
     size_t pos = url.find(strMatchFull);
     if (pos == std::string::npos)
-      break;
+      return false;
 
     url.replace(pos, strMatchFull.length(), data);
   }
@@ -1027,9 +1031,8 @@ int PVRLiveStreamsData::GetChannelId(const char * strChannelName, const char * s
 
   const char* strString = concat.c_str();
   int iId = 0;
-  int c;
-  while (c = *strString++)
-    iId = ((iId << 5) + iId) + c; /* iId * 33 + c */
+  while (*strString)
+    iId = ((iId << 5) + iId) + (*strString++); /* iId * 33 + c */
 
   return abs(iId);
 }
